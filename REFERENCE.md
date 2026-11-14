@@ -3,10 +3,16 @@
 ## Source
 
 - [Successful initial capture](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43643378657)
+- [Successful validation rerun](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43643773460)
 - Selected runtime: `com.apple.CoreSimulator.SimRuntime.iOS-18-6`, iOS 18.6 build `22G86`.
 - Xcode 16.4, build `16F6`; iOS Simulator SDK 18.5.
 - Device: iPhone 16, 393 x 852 pt, scale 3; PNGs: 1179 x 2556 px.
 - Downloaded initial artifacts: `artifacts/baseline/`. This directory is intentionally untracked.
+- Downloaded validated artifacts: `artifacts/verified/`, also untracked.
+
+The validation rerun passed all capture assertions. Both app-reported OS versions
+are 18.6, appearances match their requested modes, and colors and metrics match
+the initial capture exactly in both modes.
 
 Both modes contain `colors.json`, `metrics.json`, `live_metrics.json`,
 `animations.json`, seven PNGs and a completion marker. Videos are at the
