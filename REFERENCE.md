@@ -197,6 +197,52 @@ python3 -B scripts/validate_capture.py artifacts/latest/ios18-reference iphone
 python3 -B scripts/check_tokens.py ios18-tokens.json artifacts/latest/ios18-reference
 ```
 
+## SpringBoard extraction experiment
+
+[Run 43650920977](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43650920977)
+passed at commit `750dfc0`. The disposable iPad Pro 11-inch (M4) simulator used
+iOS 18.6, build `22G86`. Injection into SpringBoard succeeded: the startup marker
+reports process `SpringBoard`, PID 4848 and system version `18.6`.
+
+Downloaded evidence is in `artifacts/springboard-probe-run/springboard-probe/`.
+`animations.jsonl` contains one startup marker and 123 intercepted animation calls.
+Nested animation groups included, there are 26 `CASpringAnimation` records.
+81 calls and five springs occurred after the first launch request. Requests
+launched Settings, Safari, then Settings; they did not simulate icon taps or Home
+gestures. `events.jsonl` timestamps the requests, not their visual onset.
+
+The hook captures real Core Animation metadata inside SpringBoard. It does not
+yet establish the spring governing an app window's launch or recents trajectory.
+
+| Observed host / property | Context | Mass | Stiffness | Damping | CA duration, s |
+| --- | --- | ---: | ---: | ---: | ---: |
+| SBIconView / opacity | After SpringBoard restart, before requests | 1 | 168.21126723892476 | 22.048368699758548 | 0.67 |
+| SBIconView / zPosition | After SpringBoard restart, before requests | 2, 4 or 5 | 600 | 700 | 0.6, 0.8 or 0.9 respectively |
+| SBIconImageView / contents | After SpringBoard restart, before requests | 1 | 343.985 | 37.0937 | 0.3388 |
+| SBTopAffordanceDotsView / opacity | After first Settings request | 1 | 246.74011002723395 | 31.41592653589793 | 0.6 |
+| UIInputSetHostView / opacity, transform | After launch requests | 3 | 1000 | 500 | 0.5 |
+
+The input-host springs belong to keyboard-related UI, not the app window.
+Dock resizing and icon-position calls also appeared with 0.3-second basic
+animations and ease-in-out control points approximately `(0.42, 0), (0.58, 1)`.
+These observations are scoped to this run, not universal SpringBoard tokens.
+No shell motion tokens were replaced.
+
+The experiment uses `launchctl debug` to inject a simulator-built library and
+swizzles `CALayer.addAnimation:forKey:`. It records nested groups, timing curves,
+spring parameters and host classes without changing the requested animation.
+Synchronous logging adds overhead. Private animators or per-frame updates may
+bypass this hook; parameter extraction does not prove complete coverage.
+`launches.mp4` is supporting evidence only; its frame timing is not certified.
+Next extraction target: scripted Home/recents gestures with private animator
+instrumentation if the layer hook still misses the window trajectory.
+
+Repeat on the probe branch with:
+
+```sh
+gh workflow run ios-reference.yml --ref feat/springboard-animation-probe -f springboard_probe=true
+```
+
 ## Remaining limits
 
 Screenshots render the app window, not the system status bar. Simulator values
