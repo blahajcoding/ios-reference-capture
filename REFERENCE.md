@@ -154,7 +154,48 @@ Each mode adds `00_springboard.png`, captured with `simctl` before launching the
 demo. Unlike app-window PNGs it includes system chrome. A Home screenshot does
 not establish App Library, overview or gesture physics. These need further
 system-UI captures; phone UIKit metrics must not be substituted for tablet shell
-geometry. Tablet results must be checked after the workflow finishes.
+geometry.
+
+### Verified tablet result
+
+[The full phone/tablet run](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43649093775)
+passed both capture jobs and the phone-token comparison at commit `1217100`.
+Downloaded evidence is in `artifacts/latest/ios18-reference/` and
+`artifacts/latest/ipados18-reference/` (untracked).
+
+The tablet selected `com.apple.CoreSimulator.SimRuntime.iOS-18-6`, build `22G86`,
+on `com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M4-16GB`.
+Both modes report iOS 18.6, `pad` idiom and the requested appearance.
+All app PNGs and Home PNGs are 1668 x 2420 px: 834 x 1210 pt at 2x, portrait.
+This does not verify the shell's landscape layout.
+
+Both tablet palettes match the corresponding phone color dumps exactly.
+The 11 font records also match. Tablet component metrics are not interchangeable
+with phone metrics:
+
+| Tablet measurement | Value, pt | Source |
+| --- | ---: | --- |
+| Navigation bar, standalone | 50 | metrics.json |
+| Navigation bar, live state | 64 | live_metrics.json |
+| Tab bar, standalone / live | 50 / 50 | metrics.json / live_metrics.json |
+| Safe area, top / bottom | 24 / 25 | live_metrics.json |
+| First table row height | 44.5 | live_metrics.json |
+| Inset group width | 794 | live_metrics.json |
+
+The light Home screenshot, light control screen and dark action-sheet screenshot
+were visually inspected. The action sheet appears as an anchored popover, not a
+phone bottom sheet. Home shows the simulator's sparse app grid and dock; its
+contents are not a stock retail iPad configuration. Home geometry has not yet
+been measured, and these videos record the demo, not SpringBoard gestures.
+Tablet video frame timing remains uncertified.
+
+Repeat the structural checks with:
+
+```sh
+python3 -B scripts/validate_capture.py artifacts/latest/ipados18-reference ipad
+python3 -B scripts/validate_capture.py artifacts/latest/ios18-reference iphone
+python3 -B scripts/check_tokens.py ios18-tokens.json artifacts/latest/ios18-reference
+```
 
 ## Remaining limits
 
