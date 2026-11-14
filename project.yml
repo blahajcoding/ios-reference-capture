@@ -1,0 +1,22 @@
+name: RefApp
+options:
+  bundleIdPrefix: dev.ref
+  deploymentTarget:
+    iOS: "18.0"
+targets:
+  RefApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+    info:
+      path: Generated/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ref.RefApp
+        SWIFT_VERSION: "5.0"
+        CODE_SIGNING_ALLOWED: "NO"
