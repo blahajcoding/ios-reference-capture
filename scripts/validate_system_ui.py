@@ -1,0 +1,32 @@
+import json
+import struct
+import sys
+from pathlib import Path
+
+
+def validate(root):
+	root = Path(root)
+	for process in ("springboard", "settings"):
+		rows = [json.loads(line) for line in (root / f"{process}.jsonl").read_text().splitlines()]
+		ready = [row for row in rows if row["event"] == "ready"]
+		assert ready and all(row["systemVersion"].startswith("18.") for row in ready), ready
+		assert any(row["event"] == "animation" for row in rows), f"No {process} animations"
+	for orientation, size in (("portrait", (1668, 2420)), ("landscape", (2420, 1668))):
+		for state in ("home", "settings", "settings-general", "settings-about", "recents", "library", "library-search"):
+			label = f"{orientation}-{state}"
+			png = (root / "screenshots" / f"{label}.png").read_bytes()
+			assert png[:8] == b"\x89PNG\r\n\x1a\n" and struct.unpack(">II", png[16:24]) == size, label
+			assert (root / f"{label}-accessibility.txt").stat().st_size > 0, label
+			process = "Preferences" if state.startswith("settings") else "SpringBoard"
+			snapshot = json.loads((root / "views" / process / f"{label}.json").read_text())
+			assert snapshot["systemVersion"].startswith("18.") and snapshot["windows"], label
+			assert snapshot["scale"] == 2, label
+			if state == "recents":
+				assert "Switcher" in json.dumps(snapshot), "Recents view hierarchy not confirmed"
+	assert json.loads((root / "events.json").read_text()), "No action timeline"
+	assert (root / "transitions.mp4").stat().st_size > 0, "Empty video"
+	print("Validated iPadOS 18 system UI evidence for both orientations")
+
+
+if __name__ == "__main__":
+	validate(sys.argv[1])
