@@ -13,6 +13,8 @@ xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --
 APP=$(find build/Build/Products -maxdepth 3 -name RefApp.app | head -1)
 xcrun simctl install "$UDID" "$APP"
 xcrun simctl list runtimes > "$OUT/runtimes.txt"
+printf '\nSelected runtime: %s\nDevice UUID: %s\n' "$RUNTIME_ID" "$UDID" >> "$OUT/runtimes.txt"
+xcodebuild -version > "$OUT/xcode.txt"
 
 for MODE in light dark; do
   xcrun simctl ui "$UDID" appearance "$MODE"
@@ -42,6 +44,33 @@ for MODE in light dark; do
     exit 1
   fi
 done
+
+python3 - "$OUT" <<'PY'
+import json
+import pathlib
+import struct
+import sys
+
+root = pathlib.Path(sys.argv[1])
+for mode in ("light", "dark"):
+	directory = root / mode
+	live = json.loads((directory / "live_metrics.json").read_text())
+	assert live["systemVersion"].startswith("18."), live
+	assert live["interfaceStyle"] == mode, live
+	screen = live["screenPt"]
+	assert screen["scale"] == 3, screen
+	for name in ("colors", "metrics", "animations"):
+		data = json.loads((directory / f"{name}.json").read_text())
+		assert data, f"{mode}/{name}.json is empty"
+	for index in range(1, 8):
+		images = list(directory.glob(f"{index:02d}_*.png"))
+		assert len(images) == 1, images
+		header = images[0].read_bytes()[:24]
+		assert header[:8] == b"\x89PNG\r\n\x1a\n", images[0]
+		assert struct.unpack(">II", header[16:24]) == (screen["w"] * 3, screen["h"] * 3), images[0]
+	assert (root / f"{mode}.mp4").stat().st_size > 0, mode
+print("Verified iOS 18, appearance, JSON, seven 3x screenshots and video for both modes")
+PY
 
 xcrun simctl shutdown "$UDID" || true
 ls -R "$OUT"

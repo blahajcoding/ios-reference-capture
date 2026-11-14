@@ -50,6 +50,8 @@ enum Demo {
         shot("01_home", window)
 
         let insets = window.safeAreaInsets
+		live["systemVersion"] = UIDevice.current.systemVersion
+		live["interfaceStyle"] = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
         live["safeArea"] = ["top": Double(insets.top), "bottom": Double(insets.bottom)]
         live["screenPt"] = ["w": Double(window.bounds.width), "h": Double(window.bounds.height),
                             "scale": Double(window.screen.scale)]
