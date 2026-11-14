@@ -26,7 +26,7 @@ class SystemUIChecks(unittest.TestCase):
 				folder = self.root / "views" / process
 				folder.mkdir(parents=True, exist_ok=True)
 				(folder / f"{label}.json").write_text(json.dumps({"systemVersion": "18.6", "scale": 2,
-					"windows": [{"class": "SBFluidSwitcherView" if state == "recents" else "UIView"}]}))
+					"windows": [{"class": "SBFluidSwitcherContentView" if state == "recents" else "UIView"}]}))
 		(self.root / "events.json").write_text('[{"label":"test"}]')
 		(self.root / "transitions.mp4").write_bytes(b"test")
 
@@ -41,7 +41,15 @@ class SystemUIChecks(unittest.TestCase):
 
 	def test_missing_recents(self):
 		path = self.root / "views/SpringBoard/portrait-recents.json"
-		path.write_text(path.read_text().replace("SBFluidSwitcherView", "UIView"))
+		path.write_text(path.read_text().replace("SBFluidSwitcherContentView", "UIView"))
+		with self.assertRaises(AssertionError):
+			validate(self.root)
+
+	def test_hidden_recents(self):
+		path = self.root / "views/SpringBoard/portrait-recents.json"
+		snapshot = json.loads(path.read_text())
+		snapshot["windows"] = [{"class": "UIWindow", "hidden": True, "children": snapshot["windows"]}]
+		path.write_text(json.dumps(snapshot))
 		with self.assertRaises(AssertionError):
 			validate(self.root)
 

@@ -4,6 +4,14 @@ import sys
 from pathlib import Path
 
 
+def visible_switcher(view):
+	if view.get("hidden", False) or view.get("alpha", 1) <= 0.01:
+		return False
+	if view["class"] == "SBFluidSwitcherContentView":
+		return True
+	return any(visible_switcher(child) for child in view.get("children", []))
+
+
 def validate(root):
 	root = Path(root)
 	for process in ("springboard", "settings"):
@@ -22,7 +30,7 @@ def validate(root):
 			assert snapshot["systemVersion"].startswith("18.") and snapshot["windows"], label
 			assert snapshot["scale"] == 2, label
 			if state == "recents":
-				assert "Switcher" in json.dumps(snapshot), "Recents view hierarchy not confirmed"
+				assert any(visible_switcher(window) for window in snapshot["windows"]), "Visible recents view hierarchy not confirmed"
 	assert json.loads((root / "events.json").read_text()), "No action timeline"
 	assert (root / "transitions.mp4").stat().st_size > 0, "Empty video"
 	print("Validated iPadOS 18 system UI evidence for both orientations")

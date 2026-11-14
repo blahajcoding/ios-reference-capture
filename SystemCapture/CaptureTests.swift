@@ -43,9 +43,20 @@ final class CaptureTests: XCTestCase {
 	}
 
 	func testSystemScreens() throws {
+		home()
+		let topRight = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.005))
+		let center = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.7, dy: 0.5))
+		topRight.press(forDuration: 0.1, thenDragTo: center)
+		try capture("rotation-control-center", app: springboard)
+		let rotationLock = springboard.buttons.matching(NSPredicate(format:
+			"label CONTAINS[c] 'Rotation Lock' OR label CONTAINS[c] 'Orientation Lock'")).firstMatch
+		if rotationLock.exists, let value = rotationLock.value as? String, ["1", "On"].contains(value) {
+			rotationLock.tap()
+		}
 		for (name, orientation) in [("portrait", UIDeviceOrientation.portrait), ("landscape", .landscapeLeft)] {
-			XCUIDevice.shared.orientation = orientation
 			home()
+			XCUIDevice.shared.orientation = orientation
+			sleep(3)
 			try capture("\(name)-home", app: springboard)
 
 			settings.terminate()
@@ -71,8 +82,9 @@ final class CaptureTests: XCTestCase {
 			sleep(3)
 			home()
 			try mark("\(name)-recents-open")
-			XCUIDevice.shared.press(.home)
-			XCUIDevice.shared.press(.home)
+			let bottom = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.995))
+			let middle = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+			bottom.press(forDuration: 0.1, thenDragTo: middle, withVelocity: .slow, thenHoldForDuration: 1)
 			try capture("\(name)-recents", app: springboard)
 			try mark("\(name)-recents-close")
 			home()

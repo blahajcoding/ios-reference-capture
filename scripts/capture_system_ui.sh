@@ -37,6 +37,7 @@ for i in $(seq 1 30); do
 done
 test -s "$OUT/springboard.jsonl"
 sleep 8
+open -a Simulator --args -CurrentDeviceUDID "$UDID"
 xcodegen generate
 xcodebuild build-for-testing -project RefApp.xcodeproj -scheme SystemCapture \
 	-destination "platform=iOS Simulator,id=$UDID" -derivedDataPath build \
