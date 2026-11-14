@@ -113,7 +113,7 @@ static NSDictionary *Describe(CAAnimation *animation) {
 }
 @end
 
-static NSArray *Rect(CGRect rect) {
+static NSArray *DescribeRect(CGRect rect) {
 	return @[Number(rect.origin.x), Number(rect.origin.y), Number(rect.size.width), Number(rect.size.height)];
 }
 
@@ -127,8 +127,8 @@ static id Color(UIColor *color, UITraitCollection *traits) {
 static NSDictionary *View(UIView *view) {
 	NSMutableDictionary *row = [@{
 		@"class": NSStringFromClass(view.class),
-		@"frameInWindow": Rect([view convertRect:view.bounds toView:view.window]),
-		@"bounds": Rect(view.bounds),
+		@"frameInWindow": DescribeRect([view convertRect:view.bounds toView:view.window]),
+		@"bounds": DescribeRect(view.bounds),
 		@"alpha": Number(view.alpha),
 		@"hidden": @(view.hidden),
 		@"cornerRadius": Number(view.layer.cornerRadius),
@@ -176,7 +176,7 @@ static void StartSnapshots(void) {
 			}
 			NSDictionary *snapshot = @{@"label": label, @"systemVersion": UIDevice.currentDevice.systemVersion,
 				@"process": NSProcessInfo.processInfo.processName, @"scale": Number(UIScreen.mainScreen.scale),
-				@"screenBounds": Rect(UIScreen.mainScreen.bounds), @"epoch": Number(NSDate.date.timeIntervalSince1970),
+				@"screenBounds": DescribeRect(UIScreen.mainScreen.bounds), @"epoch": Number(NSDate.date.timeIntervalSince1970),
 				@"windows": windows};
 			NSString *directory = [[root stringByAppendingPathComponent:@"views"]
 				stringByAppendingPathComponent:NSProcessInfo.processInfo.processName];
