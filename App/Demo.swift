@@ -51,6 +51,7 @@ enum Demo {
 
         let insets = window.safeAreaInsets
 		live["systemVersion"] = UIDevice.current.systemVersion
+		live["userInterfaceIdiom"] = UIDevice.current.userInterfaceIdiom == .pad ? "pad" : "phone"
 		live["interfaceStyle"] = window.traitCollection.userInterfaceStyle == .dark ? "dark" : "light"
         live["safeArea"] = ["top": Double(insets.top), "bottom": Double(insets.bottom)]
         live["screenPt"] = ["w": Double(window.bounds.width), "h": Double(window.bounds.height),
@@ -112,6 +113,10 @@ enum Demo {
         sheet.addAction(UIAlertAction(title: "Delete", style: .destructive))
         sheet.addAction(UIAlertAction(title: "Share", style: .default))
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+		if let popover = sheet.popoverPresentationController {
+			popover.sourceView = tabs.view
+			popover.sourceRect = CGRect(x: tabs.view.bounds.midX, y: tabs.view.bounds.maxY - 50, width: 1, height: 1)
+		}
         tabs.present(sheet, animated: true)
         await probe("actionsheet.present")
         await sleep(settle); shot("07_actionsheet", window)

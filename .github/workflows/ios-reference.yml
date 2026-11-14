@@ -6,8 +6,17 @@ jobs:
   capture:
     runs-on: macos-15
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [iphone, ipad]
+    env:
+      PROFILE: ${{ matrix.profile }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate capture checks
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
 
       - name: Tool versions
         run: |
@@ -33,5 +42,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ios18-reference
+          name: ${{ matrix.profile == 'iphone' && 'ios18-reference' || 'ipados18-reference' }}
           path: artifacts
