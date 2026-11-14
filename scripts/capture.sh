@@ -5,7 +5,19 @@ BUNDLE=dev.ref.RefApp
 OUT=artifacts
 mkdir -p "$OUT"
 
-UDID=$(xcrun simctl create RefPhone com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$RUNTIME_ID")
+PROFILE=${PROFILE:-iphone}
+case "$PROFILE" in
+	iphone) DEVICE_TYPE=com.apple.CoreSimulator.SimDeviceType.iPhone-16 ;;
+	ipad)
+		DEVICE_TYPE=$(xcrun simctl list devicetypes --json | python3 -c '
+import json, sys
+devices = json.load(sys.stdin)["devicetypes"]
+print(next(d["identifier"] for d in devices if d["name"].startswith("iPad Pro 11-inch (M4)")))
+')
+		;;
+	*) echo "Unsupported profile: $PROFILE" >&2; exit 1 ;;
+esac
+UDID=$(xcrun simctl create "Ref-$PROFILE" "$DEVICE_TYPE" "$RUNTIME_ID")
 xcrun simctl boot "$UDID"
 xcrun simctl bootstatus "$UDID" -b
 xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3 || true
@@ -13,10 +25,15 @@ xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --
 APP=$(find build/Build/Products -maxdepth 3 -name RefApp.app | head -1)
 xcrun simctl install "$UDID" "$APP"
 xcrun simctl list runtimes > "$OUT/runtimes.txt"
+printf '\nSelected runtime: %s\nDevice UUID: %s\n' "$RUNTIME_ID" "$UDID" >> "$OUT/runtimes.txt"
+printf 'Device type: %s\nProfile: %s\n' "$DEVICE_TYPE" "$PROFILE" >> "$OUT/runtimes.txt"
+xcodebuild -version > "$OUT/xcode.txt"
 
 for MODE in light dark; do
   xcrun simctl ui "$UDID" appearance "$MODE"
   sleep 3
+	mkdir -p "$OUT/$MODE"
+	xcrun simctl io "$UDID" screenshot "$OUT/$MODE/00_springboard.png"
 
   xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$OUT/$MODE.mp4" &
   REC=$!
@@ -42,6 +59,8 @@ for MODE in light dark; do
     exit 1
   fi
 done
+
+python3 scripts/validate_capture.py "$OUT" "$PROFILE"
 
 xcrun simctl shutdown "$UDID" || true
 ls -R "$OUT"
