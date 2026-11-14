@@ -243,6 +243,49 @@ Repeat on the probe branch with:
 gh workflow run ios-reference.yml --ref feat/springboard-animation-probe -f springboard_probe=true
 ```
 
+## System UI capture: partial evidence
+
+[Run 43654618397](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43654618397)
+compiled and completed the UI test in both appearances, but failed evidence
+validation. All images remained portrait, including those named `landscape-*`.
+The supposed recents screenshot showed Home. Neither landscape nor recents from
+this run is a valid reference. The current validator also rejects a switcher
+hierarchy whose ancestors are hidden.
+
+Downloaded evidence is in `artifacts/system-ui-first/`. The portrait Home,
+Library and Settings captures contain actual iPadOS 18.6 view trees. Library
+and the failed recents screenshot were visually inspected. Coordinates below
+are points, not pixels; this simulator is 834 by 1210 points at 2x scale.
+
+| Portrait view | Captured geometry | Scope |
+| --- | --- | --- |
+| Home icon image | 60 by 60 | Visible `SBIconImageView` instances |
+| Initial dock material | 402 by 94; corner radius 30.5 | Four pinned apps plus Library; width changes with contents |
+| Library category background | 155 by 155; corner radius 21.6 | Sparse simulator Library, one category |
+| Library search field | x 250, y 345, width 334, height 48; radius 16 | Unfocused `SBHSearchTextField` |
+| Settings detail table | x 320, width 514 | Full-screen split layout; General already selected on launch |
+
+The action timeline associates these spring records with portrait transitions
+in the light capture. Values are CA metadata, not measured visible settling.
+
+| Action / observed properties | Mass | Stiffness | Damping | CA duration, s |
+| --- | ---: | ---: | ---: | ---: |
+| Library opening: category corner radius, icon-list transform, crossfade position/transform and label opacity | 1 | 323.401 | 28.78 | 0.5037687682537646 |
+| Library search focus: search-bar/text-field position and size | 3 | 1000 | 500 | 0.5058237870785645 |
+| Settings About navigation: view position, parallax dimming and edge-shadow opacity | 3 | 1000 | 500 | 0.5 |
+
+Library opening recorded 53 animation calls, including ten spring records.
+Search focus recorded 70 calls, including 40 spring records; this also includes
+keyboard-related layers. Settings About recorded 15 calls, including four
+springs. The General selection produced no animation because it was already
+selected. These counts are scoped to the timestamped action intervals.
+
+The system-UI workflow records screenshots, accessibility trees, view geometry,
+animation journals, action timestamps and video for each appearance. Its
+follow-up run fixes the switcher gesture and rotation setup. Synchronous probe
+logging can perturb timing, and private per-frame animators may bypass the hook.
+No qOS runtime motion or layout values were changed.
+
 ## Remaining limits
 
 Screenshots render the app window, not the system status bar. Simulator values
