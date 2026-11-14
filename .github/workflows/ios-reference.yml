@@ -1,9 +1,15 @@
 name: ios-reference
 on:
   workflow_dispatch:
+    inputs:
+      springboard_probe:
+        description: Run experimental SpringBoard probe instead of UIKit capture
+        type: boolean
+        default: false
 
 jobs:
   capture:
+    if: ${{ !inputs.springboard_probe }}
     runs-on: macos-15
     timeout-minutes: 60
     strategy:
@@ -48,3 +54,19 @@ jobs:
         with:
           name: ${{ matrix.profile == 'iphone' && 'ios18-reference' || 'ipados18-reference' }}
           path: artifacts
+
+  springboard-probe:
+    if: ${{ inputs.springboard_probe }}
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure iOS 18 runtime
+        run: bash scripts/ensure_ios18.sh
+      - name: Probe SpringBoard animations
+        run: bash scripts/probe_springboard.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: springboard-probe
+          path: artifacts/springboard
