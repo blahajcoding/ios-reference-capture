@@ -1,0 +1,370 @@
+{
+  "meta": {
+    "name": "ios18-tokens",
+    "version": "0.3.0",
+    "target": "iOS 18 (pre-Liquid Glass)",
+    "units": "iOS points (pt). 1pt = 1 logical px in Qt. Let Qt handle devicePixelRatio.",
+    "verification": {
+      "VERIFIED_against_Apple_HIG": [
+        "typography.scale (Large/default Dynamic Type size, incl. emphasized weights): HIG Typography page, rev. Dec 16 2025",
+        "typography.tracking (SF Pro): same page",
+        "color.*.systemGray .. systemGray6 (light + dark): HIG iOS gray table"
+      ],
+      "VERIFIED_iOS_18_6_SIMULATOR": [
+        "color.light and color.dark: every captured role except unprobed rowHighlight and onTint. Alpha rounded to 3 decimals; RGB rounded to 8 bits.",
+        "color.darkElevated: inherits color.dark, overriding the 6 elevated background roles. Resolved UIColor values, not blur materials.",
+        "typography.uiFontLineHeight: UIFont metrics at default Large Dynamic Type. All 11 point sizes match typography.scale; HIG layout lineHeight remains separate.",
+        "component: switch width/height 51/31, segmented height 32, standalone navBar/tabBar/toolbar heights 44/49/44, searchField fitting height 34. Other fields in these groups remain provisional.",
+        "component.list.groupedInsetMargin: 20pt measured from 3x iPhone screenshots. Tablet geometry not inferred.",
+        "motion.capturedUIKit: selected deduplicated Core Animation springs and timing curves. Not SpringBoard or SwiftUI presets. CA duration is not visible settling time."
+      ],
+      "NOT_PUBLISHED_BY_APPLE": [
+        "Remaining component fields, spacing, radius, shadow and material have not been verified against simulator measurements.",
+        "motion.duration, motion.easing and motion.spring are retained unverified estimates, not captured system transitions."
+      ]
+    },
+    "openConflicts": [],
+    "resolvedConflicts": {
+      "color.dark.quaternaryLabel": "Simulator alpha 0.157 at 3-decimal export precision.",
+      "color.dark.quaternaryFill": "Simulator RGB 118,118,128, alpha 0.18; original token was correct.",
+      "color.dark.link": "Simulator #0984FF; original token was correct. This differs from systemBlue #0A84FF."
+    },
+    "captureSource": {
+      "run": "https://github.com/blahajcoding/ios-reference-capture/actions/runs/43643773460",
+      "systemVersion": "18.6",
+      "build": "22G86",
+      "device": "iPhone 16, 393x852pt, 3x",
+      "appearance": "normal contrast, light/dark base and dark elevated",
+      "report": "ios-reference-capture/REFERENCE.md"
+    },
+    "howToGetExactValues": "Apple warns documented values may fluctuate between releases. For true 1:1, dump resolved UIColor values from an iOS 18 simulator and measure components from Apple Design Resources (Figma/Sketch iOS 18 kit).",
+    "qtGotchas": [
+      "QML hex colors are #AARRGGBB (alpha FIRST). CSS rgba() strings here are r,g,b 0-255 and a 0-1; convert with Qt.rgba(r/255, g/255, b/255, a).",
+      "Hairline separator = 1 device pixel = 1 / devicePixelRatio logical px.",
+      "QML SpringAnimation spring/damping params are NOT the same units as the stiffness/damping below. Implement own spring or tune by eye.",
+      "SF Pro / SF Symbols are Apple-licensed fonts/assets. Use the fallback font and an open icon set (Lucide, Phosphor). Check Apple's license terms yourself."
+    ]
+  },
+
+  "color": {
+    "light": {
+      "systemBlue": "#007AFF",
+      "systemGreen": "#34C759",
+      "systemIndigo": "#5856D6",
+      "systemOrange": "#FF9500",
+      "systemPink": "#FF2D55",
+      "systemPurple": "#AF52DE",
+      "systemRed": "#FF3B30",
+      "systemTeal": "#30B0C7",
+      "systemCyan": "#32ADE6",
+      "systemMint": "#00C7BE",
+      "systemBrown": "#A2845E",
+      "systemYellow": "#FFCC00",
+
+      "systemGray": "#8E8E93",
+      "systemGray2": "#AEAEB2",
+      "systemGray3": "#C7C7CC",
+      "systemGray4": "#D1D1D6",
+      "systemGray5": "#E5E5EA",
+      "systemGray6": "#F2F2F7",
+
+      "background": "#FFFFFF",
+      "secondaryBackground": "#F2F2F7",
+      "tertiaryBackground": "#FFFFFF",
+      "groupedBackground": "#F2F2F7",
+      "secondaryGroupedBackground": "#FFFFFF",
+      "tertiaryGroupedBackground": "#F2F2F7",
+
+      "label": "#000000",
+      "secondaryLabel": "rgba(60,60,67,0.60)",
+      "tertiaryLabel": "rgba(60,60,67,0.298)",
+      "quaternaryLabel": "rgba(60,60,67,0.176)",
+      "placeholderText": "rgba(60,60,67,0.298)",
+      "link": "#007AFF",
+
+      "separator": "rgba(60,60,67,0.29)",
+      "opaqueSeparator": "#C6C6C8",
+
+      "fill": "rgba(120,120,128,0.20)",
+      "secondaryFill": "rgba(120,120,128,0.16)",
+      "tertiaryFill": "rgba(118,118,128,0.12)",
+      "quaternaryFill": "rgba(116,116,128,0.08)",
+
+      "rowHighlight": "#D1D1D6",
+      "onTint": "#FFFFFF"
+    },
+    "dark": {
+      "systemBlue": "#0A84FF",
+      "systemGreen": "#30D158",
+      "systemIndigo": "#5E5CE6",
+      "systemOrange": "#FF9F0A",
+      "systemPink": "#FF375F",
+      "systemPurple": "#BF5AF2",
+      "systemRed": "#FF453A",
+      "systemTeal": "#40C8E0",
+      "systemCyan": "#64D2FF",
+      "systemMint": "#63E6E2",
+      "systemBrown": "#AC8E68",
+      "systemYellow": "#FFD60A",
+
+      "systemGray": "#8E8E93",
+      "systemGray2": "#636366",
+      "systemGray3": "#48484A",
+      "systemGray4": "#3A3A3C",
+      "systemGray5": "#2C2C2E",
+      "systemGray6": "#1C1C1E",
+
+      "background": "#000000",
+      "secondaryBackground": "#1C1C1E",
+      "tertiaryBackground": "#2C2C2E",
+      "groupedBackground": "#000000",
+      "secondaryGroupedBackground": "#1C1C1E",
+      "tertiaryGroupedBackground": "#2C2C2E",
+
+      "label": "#FFFFFF",
+      "secondaryLabel": "rgba(235,235,245,0.60)",
+      "tertiaryLabel": "rgba(235,235,245,0.298)",
+      "quaternaryLabel": "rgba(235,235,245,0.157)",
+      "placeholderText": "rgba(235,235,245,0.298)",
+      "link": "#0984FF",
+
+      "separator": "rgba(84,84,88,0.60)",
+      "opaqueSeparator": "#38383A",
+
+      "fill": "rgba(120,120,128,0.36)",
+      "secondaryFill": "rgba(120,120,128,0.32)",
+      "tertiaryFill": "rgba(118,118,128,0.24)",
+      "quaternaryFill": "rgba(118,118,128,0.18)",
+
+      "rowHighlight": "#3A3A3C",
+      "onTint": "#FFFFFF"
+    },
+
+    "darkElevated": {
+      "_inherits": "dark",
+      "_note": "VERIFIED iOS 18.6 elevated normal-contrast UIColor background overrides. All other captured color roles match dark base.",
+      "background": "#1C1C1E",
+      "secondaryBackground": "#2C2C2E",
+      "tertiaryBackground": "#3A3A3C",
+      "groupedBackground": "#1C1C1E",
+      "secondaryGroupedBackground": "#2C2C2E",
+      "tertiaryGroupedBackground": "#3A3A3C"
+    },
+
+    "ios26Reference": {
+      "_note": "NOT iOS 18. These are the values on Apple's live HIG Color page (updated Jun 9 2025, iOS 26). Included only so you can see the difference. Default contrast only.",
+      "light": {
+        "systemRed": "#FF383C", "systemOrange": "#FF8D28", "systemYellow": "#FFCC00",
+        "systemGreen": "#34C759", "systemMint": "#00C8B3", "systemTeal": "#00C3D0",
+        "systemCyan": "#00C0E8", "systemBlue": "#0088FF", "systemIndigo": "#6155F5",
+        "systemPurple": "#CB30E0", "systemPink": "#FF2D55", "systemBrown": "#AC7F5E"
+      },
+      "dark": {
+        "systemRed": "#FF4245", "systemOrange": "#FF9230", "systemYellow": "#FFD600",
+        "systemGreen": "#30D158", "systemMint": "#00DAC3", "systemTeal": "#00D2E0",
+        "systemCyan": "#3CD3FE", "systemBlue": "#0091FF", "systemIndigo": "#6D7CFF",
+        "systemPurple": "#DB34F2", "systemPink": "#FF375F", "systemBrown": "#B78A66"
+      }
+    }
+  },
+
+  "typography": {
+    "_source": "Apple HIG Typography, Specifications > iOS Dynamic Type sizes > Large (default). VERIFIED.",
+    "family": {
+      "primary": "SF Pro",
+      "fallbackStack": ["Inter", "Cantarell", "Noto Sans", "sans-serif"],
+      "mono": ["SF Mono", "JetBrains Mono", "monospace"],
+      "_note": "SF Pro is a variable font with dynamic optical sizes (Text/Display merge continuously). Static fallbacks like Inter will not match glyph shapes."
+    },
+    "defaultSize": 17,
+    "minimumSize": 11,
+    "weight": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700 },
+    "scale": {
+      "largeTitle":  { "size": 34, "lineHeight": 41, "weight": 400, "weightEmphasized": 700 },
+      "title1":      { "size": 28, "lineHeight": 34, "weight": 400, "weightEmphasized": 700 },
+      "title2":      { "size": 22, "lineHeight": 28, "weight": 400, "weightEmphasized": 700 },
+      "title3":      { "size": 20, "lineHeight": 25, "weight": 400, "weightEmphasized": 600 },
+      "headline":    { "size": 17, "lineHeight": 22, "weight": 600, "weightEmphasized": 600 },
+      "body":        { "size": 17, "lineHeight": 22, "weight": 400, "weightEmphasized": 600 },
+      "callout":     { "size": 16, "lineHeight": 21, "weight": 400, "weightEmphasized": 600 },
+      "subheadline": { "size": 15, "lineHeight": 20, "weight": 400, "weightEmphasized": 600 },
+      "footnote":    { "size": 13, "lineHeight": 18, "weight": 400, "weightEmphasized": 600 },
+      "caption1":    { "size": 12, "lineHeight": 16, "weight": 400, "weightEmphasized": 600 },
+      "caption2":    { "size": 11, "lineHeight": 13, "weight": 400, "weightEmphasized": 600 }
+    },
+    "uiFontLineHeight": {
+      "_note": "VERIFIED iOS 18.6 UIFont.lineHeight. Do not substitute these glyph metrics for HIG layout line heights in scale.",
+      "largeTitle": 40.57421875,
+      "title1": 33.4140625,
+      "title2": 26.25390625,
+      "title3": 23.8671875,
+      "headline": 20.287109375,
+      "body": 20.287109375,
+      "callout": 19.09375,
+      "subheadline": 17.900390625,
+      "footnote": 15.513671875,
+      "caption1": 14.3203125,
+      "caption2": 13.126953125
+    },
+    "tracking": {
+      "_source": "Apple HIG Typography > Tracking values > iOS, iPadOS, visionOS > SF Pro. VERIFIED.",
+      "_usage": "Each entry is [tracking in 1/1000 em, tracking in pt]. Qt: use the pt value as absolute letter spacing (px at 1x). Only valid for SF Pro. If using Inter, do NOT apply; tune separately. Interpolate for sizes not listed.",
+      "sfPro": {
+        "6": [41, 0.24], "7": [34, 0.23], "8": [26, 0.21], "9": [19, 0.17], "10": [12, 0.12],
+        "11": [6, 0.06], "12": [0, 0.0], "13": [-6, -0.08], "14": [-11, -0.15], "15": [-16, -0.23],
+        "16": [-20, -0.31], "17": [-26, -0.43], "18": [-25, -0.44], "19": [-24, -0.45], "20": [-23, -0.45],
+        "21": [-18, -0.36], "22": [-12, -0.26], "23": [-4, -0.10], "24": [3, 0.07], "25": [6, 0.15],
+        "26": [8, 0.22], "27": [11, 0.29], "28": [14, 0.38], "29": [14, 0.40], "30": [14, 0.40],
+        "31": [13, 0.39], "32": [13, 0.41], "33": [12, 0.40], "34": [12, 0.40], "35": [11, 0.38],
+        "36": [10, 0.37], "37": [10, 0.36], "38": [10, 0.37], "39": [10, 0.38], "40": [10, 0.37],
+        "41": [9, 0.36], "42": [9, 0.37], "43": [9, 0.38], "44": [8, 0.37], "45": [8, 0.35],
+        "46": [8, 0.36], "47": [8, 0.37], "48": [8, 0.35], "49": [7, 0.33], "50": [7, 0.34],
+        "51": [7, 0.35], "52": [6, 0.33], "53": [6, 0.31], "54": [6, 0.32], "56": [6, 0.30],
+        "58": [5, 0.28], "60": [4, 0.26], "62": [4, 0.24], "64": [4, 0.22], "66": [3, 0.19],
+        "68": [2, 0.17], "70": [2, 0.14], "72": [2, 0.14], "76": [1, 0.07], "80": [0, 0],
+        "84": [0, 0], "88": [0, 0], "92": [0, 0], "96": [0, 0]
+      }
+    }
+  },
+
+  "spacing": {
+    "_note": "UNVERIFIED. Convention (4/8pt grid), not an Apple spec.",
+    "xxs": 2, "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 20, "xxl": 24, "xxxl": 32
+  },
+
+  "radius": {
+    "_note": "UNVERIFIED. Measured from iOS UI, not published by Apple as numbers.",
+    "xs": 4,
+    "sm": 8,
+    "md": 10,
+    "lg": 14,
+    "xl": 20,
+    "capsule": 9999,
+    "continuousSmoothing": 0.6,
+    "_squircle": "iOS uses continuous (squircle) corners. Plain rounded rects are close but not 1:1."
+  },
+
+  "component": {
+    "_note": "Only fields listed in meta.verification.VERIFIED_iOS_18_6_SIMULATOR are measured. Other fields remain provisional. Fitting sizes are not necessarily rendered sizes; phone geometry is not tablet or SpringBoard geometry.",
+    "hitTargetMin": 44,
+
+    "list": {
+      "rowMinHeight": 44,
+      "rowPaddingX": 16,
+      "rowPaddingY": 11,
+      "separatorInsetLeft": 16,
+      "separatorInsetLeftWithIcon": 60,
+      "groupedInsetMargin": 20,
+      "groupedCornerRadius": 10,
+      "sectionSpacing": 35,
+      "headerTextToken": "footnote",
+      "headerTextTransform": "uppercase",
+      "headerTextColor": "secondaryLabel"
+    },
+
+    "navBar": { "height": 44, "largeTitleExtraHeight": 52, "titleToken": "headline", "largeTitleToken": "largeTitle", "material": "chrome" },
+    "tabBar": { "height": 49, "iconSize": 25, "labelSize": 10, "material": "chrome" },
+    "toolbar": { "height": 44, "material": "chrome" },
+
+    "button": {
+      "large":  { "height": 50, "radius": 14, "paddingX": 20, "textToken": "headline" },
+      "medium": { "height": 36, "radius": 9999, "paddingX": 16, "textToken": "subheadline" },
+      "small":  { "height": 28, "radius": 9999, "paddingX": 12, "textToken": "footnote" },
+      "pressedOpacity": 0.25,
+      "disabledOpacity": 0.3
+    },
+
+    "switch": {
+      "width": 51,
+      "height": 31,
+      "knobSize": 27,
+      "knobInset": 2,
+      "trackOn": "systemGreen",
+      "trackOff": "secondaryFill",
+      "trackOffFlatApprox": { "light": "#E9E9EA", "dark": "#39393D" },
+      "knobColor": "#FFFFFF"
+    },
+
+    "segmented": {
+      "height": 32,
+      "radius": 9,
+      "selectedInset": 2,
+      "selectedRadius": 7,
+      "trackColor": "tertiaryFill",
+      "selectedColorLight": "#FFFFFF",
+      "selectedColorDark": "#636366"
+    },
+
+    "slider": { "trackHeight": 4, "thumbSize": 28, "thumbRectSize": 31, "_note": "thumbRectSize is measured UIKit geometry, not the unverified visible thumbSize.", "trackFilled": "systemBlue", "trackEmpty": "systemGray4" },
+
+    "searchField": { "height": 34, "_note": "Measured standalone UISearchTextField fitting height, not SpringBoard App Library search height.", "radius": 10, "fill": "tertiaryFill", "iconColor": "secondaryLabel" },
+    "textField": { "height": 44, "paddingX": 16 },
+
+    "alert": {
+      "width": 270,
+      "radius": 14,
+      "padding": 16,
+      "buttonHeight": 44,
+      "titleToken": "headline",
+      "messageToken": "footnote",
+      "material": "regular"
+    },
+
+    "actionSheet": { "radius": 14, "rowHeight": 57, "gapToCancel": 8, "material": "regular" },
+
+    "sheet": { "cornerRadius": 12, "grabberWidth": 36, "grabberHeight": 5, "grabberColor": "tertiaryLabel", "dimOpacity": 0.4 }
+  },
+
+  "shadow": {
+    "_note": "UNVERIFIED. Eyeballed. Replace with measured values.",
+    "switchKnob": [
+      { "x": 0, "y": 3, "blur": 8, "color": "rgba(0,0,0,0.15)" },
+      { "x": 0, "y": 3, "blur": 1, "color": "rgba(0,0,0,0.06)" }
+    ],
+    "segmentedSelected": [
+      { "x": 0, "y": 3, "blur": 8, "color": "rgba(0,0,0,0.12)" },
+      { "x": 0, "y": 3, "blur": 1, "color": "rgba(0,0,0,0.04)" }
+    ],
+    "sliderThumb": [
+      { "x": 0, "y": 2, "blur": 4, "color": "rgba(0,0,0,0.20)" }
+    ]
+  },
+
+  "material": {
+    "_note": "UNVERIFIED. Apple does not publish material blur/tint numbers. Backdrop blur is hard in Qt Quick (ShaderEffectSource + blur shader, or Qt Quick Effects). Tune by eye against iOS 18 screenshots.",
+    "blurRadius": 20,
+    "saturation": 1.8,
+    "chrome":  { "light": "rgba(249,249,249,0.94)", "dark": "rgba(22,22,22,0.94)" },
+    "thin":    { "light": "rgba(255,255,255,0.50)", "dark": "rgba(40,40,40,0.50)" },
+    "regular": { "light": "rgba(255,255,255,0.72)", "dark": "rgba(40,40,40,0.72)" },
+    "thick":   { "light": "rgba(255,255,255,0.86)", "dark": "rgba(40,40,40,0.86)" },
+    "fallbackNoBlur": "Use the same tint at alpha 0.95 on a solid background if blur is unavailable."
+  },
+
+  "motion": {
+    "_note": "Only capturedUIKit is simulator-verified. Existing duration/easing/spring entries are unverified estimates retained for compatibility; do not use them as measured SpringBoard constants.",
+    "capturedUIKit": {
+      "_note": "VERIFIED selected iOS 18.6 CAAnimation records, deduplicated by trigger/key. Durations in seconds. Qt SpringAnimation uses different units. See source animations.json for complete layer records.",
+      "switchWell": { "key": "SwitchWellPosition", "mass": 1, "stiffness": 85.37720070146501, "damping": 18.47995678582231, "duration": 0.9994651737792357 },
+      "switchKnob": { "key": "TouchKnobPositionAnimation", "mass": 1, "stiffness": 438.6490844928604, "damping": 31.41592653589793, "duration": 0.4880138408543766 },
+      "segmentedSelection": { "mass": 1, "stiffness": 503.5512449535385, "damping": 44.87989505128275, "duration": 0.4115444833208618 },
+      "navigationPush": { "mass": 3, "stiffness": 1000, "damping": 500, "duration": 0.5 },
+      "sheetPresent": { "mass": 3, "stiffness": 1000, "damping": 500, "duration": 0.5 },
+      "alertPresent": { "mass": 1, "stiffness": 522.3503149568596, "damping": 45.70996893268949, "duration": 0.404 },
+      "actionSheetPresent": { "mass": 1, "stiffness": 522.3503149568596, "damping": 45.70996893268949, "duration": 0.404 },
+      "switchOpacity": { "duration": 0.2, "controlPoints": [0.25, 0.10000000149011612, 0.25, 1] }
+    },
+    "duration": { "fast": 0.15, "standard": 0.25, "navigation": 0.35, "spring": 0.5 },
+    "easing": {
+      "easeIn":    [0.42, 0, 1, 1],
+      "easeOut":   [0, 0, 0.58, 1],
+      "easeInOut": [0.42, 0, 0.58, 1]
+    },
+    "spring": {
+      "_formula": "stiffness = (2*pi/duration)^2, damping = 2*(1-bounce)*sqrt(stiffness), mass = 1.",
+      "smooth": { "duration": 0.5, "bounce": 0.0,  "mass": 1, "stiffness": 157.9, "damping": 25.1 },
+      "snappy": { "duration": 0.5, "bounce": 0.15, "mass": 1, "stiffness": 157.9, "damping": 21.4 },
+      "bouncy": { "duration": 0.5, "bounce": 0.30, "mass": 1, "stiffness": 157.9, "damping": 17.6 }
+    }
+  }
+}

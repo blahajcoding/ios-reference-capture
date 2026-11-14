@@ -35,7 +35,8 @@ runtime in `runtimes.txt` and the actual OS version in each `live_metrics.json`.
 ## Measured colors
 
 Values below come from `colors.json`, converted to sRGB. Alpha is separate from hex.
-These are measurements, not a comparison with an existing token file.
+The checked-in `ios18-tokens.json` has been reconciled against the validated capture.
+RGB values are rounded to 8 bits and alpha to three decimal places by the exporter.
 
 | Color | light.normal.base | dark.normal.base | dark.normal.elevated |
 | --- | --- | --- | --- |
@@ -117,12 +118,45 @@ navigation push/pop, sheet presentation/dismissal, alert presentation and action
 sheet presentation. No transition required the missing-probe video fallback.
 Recorded CA durations are not independently measured visible settling times.
 
-## Remaining work
+## Token reconciliation
 
-`ios18-tokens.json` is not present in this project or the searched home directory.
-Token diffs, `meta.openConflicts`, `typography.scale`, `motion.*` and `component.*`
-updates remain blocked until the actual file is supplied. No token group has been
-marked VERIFIED without that comparison.
+The supplied `/home/venus/Downloads/ios18-tokens.json` and checked-in copy are version
+0.3.0. Six alpha values were corrected; all other captured base-color tokens match.
+All three `meta.openConflicts` are resolved: dark quaternary label alpha is 0.157,
+dark quaternary fill is RGB 118,118,128 at alpha 0.18, and dark link is #0984FF.
+The latter two original tokens were correct. `color.darkElevated` records six
+background overrides inheriting the dark base palette. Unprobed `rowHighlight`
+and `onTint` are not marked verified.
+
+All 11 typography point sizes match. HIG layout line heights remain unchanged;
+`typography.uiFontLineHeight` stores the separate measured font metrics.
+Component updates use 20pt phone grouped margins and 34pt search-field fitting
+height. Slider thumbRect is recorded separately from the unverified visible thumb.
+Selected deduplicated UIKit springs and an opacity timing curve are recorded under
+`motion.capturedUIKit`. Existing estimates remain explicitly unverified for
+compatibility. None of these is a measured SpringBoard launch or recents spring.
+
+Check the palette, typography and selected springs against downloaded evidence:
+
+```sh
+python3 -B scripts/check_tokens.py ios18-tokens.json artifacts/verified
+```
+
+## Tablet and SpringBoard capture
+
+The workflow runs separate iPhone 16 and iPad Pro 11-inch (M4) profiles. Artifacts
+retain the `ios18-reference` phone name and add `ipados18-reference` for the tablet.
+Both profiles record the actual OS version, phone/pad idiom, screen scale and
+selected simulator device type. Validation requires phone 3x and tablet 2x output.
+An anchored iPad action-sheet popover avoids the phone-only presentation crash.
+
+Each mode adds `00_springboard.png`, captured with `simctl` before launching the
+demo. Unlike app-window PNGs it includes system chrome. A Home screenshot does
+not establish App Library, overview or gesture physics. These need further
+system-UI captures; phone UIKit metrics must not be substituted for tablet shell
+geometry. Tablet results must be checked after the workflow finishes.
+
+## Remaining limits
 
 Screenshots render the app window, not the system status bar. Simulator values
 describe this OS/device/content configuration, not every iPhone or every text size.
