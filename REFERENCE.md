@@ -286,6 +286,24 @@ follow-up run fixes the switcher gesture and rotation setup. Synchronous probe
 logging can perturb timing, and private per-frame animators may bypass the hook.
 No qOS runtime motion or layout values were changed.
 
+### Follow-up: recents gesture confirmed
+
+[Run 43655737833](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43655737833)
+at `574308a` captured the portrait switcher correctly in light mode. The screenshot
+shows Safari and Settings cards, and the view dump has a visible
+`SBFluidSwitcherContentView`. Its timestamped opening interval contains ten basic
+animation calls and no intercepted spring records. The main interactive card
+trajectory still bypasses this layer hook; no recents spring is established.
+
+The run remained unsuccessful: landscape stayed portrait, and dark mode timed
+out launching Safari. Evidence is in `artifacts/system-ui-second/`. A frame-PTS
+scan found no backward jumps among 1482 light-video frames, but one among 997
+dark-video frames (37.621667 to 37.536667 seconds). This does not certify frame
+cadence or settling time. The next attempt sends the native Simulator device
+orientation event through `PurpleWorkspacePort` and launches Safari before the
+UI test rather than during it. The orientation-event layout follows the
+[documented Simulator.app message format](https://github.com/shuv1337/baguette/blob/e14b606a/Sources/Baguette/Domain/Orientation/OrientationEvent.swift).
+
 ## Remaining limits
 
 Screenshots render the app window, not the system status bar. Simulator values
