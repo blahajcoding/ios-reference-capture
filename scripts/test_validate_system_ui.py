@@ -39,6 +39,13 @@ class SystemUIChecks(unittest.TestCase):
 		with self.assertRaises(AssertionError):
 			validate(self.root)
 
+	def test_partial_portrait_keeps_default_landscape_check(self):
+		(self.root / "screenshots/landscape-home.png").write_bytes(
+			(self.root / "screenshots/portrait-home.png").read_bytes())
+		validate(self.root, portrait_only=True)
+		with self.assertRaises(AssertionError):
+			validate(self.root)
+
 	def test_missing_recents(self):
 		path = self.root / "views/SpringBoard/portrait-recents.json"
 		path.write_text(path.read_text().replace("SBFluidSwitcherContentView", "UIView"))
