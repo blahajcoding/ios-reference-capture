@@ -243,7 +243,56 @@ Repeat on the probe branch with:
 gh workflow run ios-reference.yml --ref feat/springboard-animation-probe -f springboard_probe=true
 ```
 
-## System UI capture: partial evidence
+## System UI capture: verified portrait evidence
+
+[Run 43657128087](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43657128087)
+at `8f09219` completed UI tests in light and dark mode on iPadOS 18.6. Portrait
+evidence passes the scoped validator in both modes. The overall run failed its
+landscape check: images named `landscape-*` are still portrait and must not be
+used as landscape references. Native orientation events were acknowledged but
+did not rotate SpringBoard after injection. That ineffective helper was removed;
+the system-UI workflow now explicitly captures and validates portrait only.
+
+Evidence is in `artifacts/system-ui-third/ipados18-system-ui-{light,dark}/{light,dark}/`.
+Each mode includes seven portrait PNGs, accessibility trees, SpringBoard and
+Preferences view snapshots, animation journals, action timestamps and video.
+The device is iPad Pro 11-inch (M4), 834 by 1210 pt at 2x, using iOS 18.6.
+Light Home/Library and dark Settings About/recents/Library search screenshots
+were visually inspected. Dark recents correctly shows Settings and Safari cards.
+
+Additional geometry from the portrait light view trees:
+
+| Context | Measurement in points | Interpretation |
+| --- | --- | --- |
+| Home grid | 164 horizontal and vertical pitch between sampled icons | This viewport and widget arrangement, not a universal grid |
+| Home widgets | 300 by 300 and 300 by 136; local corner radius 18.9 | Two square widgets and one wide widget |
+| Focused Library search | x 139, y 90, width 483, height 48; radius 16 | Unfocused search is 334 by 48, not UIKit's 34-point fitting height |
+| Library alphabetical list | x 139, y 162, width 556, height 968 | The keyboard can cover part of this view |
+| Recents card | width 250, height 362.7098321342926; x 539.5 | Source bounds are 834 by 1210, uniformly scaled |
+| Recents card corners | local radius 33.36, rendered radius 10 | Multiply local radius by 250/834; do not apply 33.36 to the small card |
+
+Both appearances reproduce the Library and Settings spring parameters in the
+tables below. Each Library-opening interval has 53 animation calls and ten
+springs; search focus has 70 calls and 40 springs; Settings About has 15 calls
+and four springs. Each recents-opening interval has ten basic calls and no
+intercepted springs. Its interactive card physics remain unknown.
+
+Video timing is unsuitable for direct duration measurements: the light video
+has 1552 frames and a backward PTS jump from 73.943333 to 62.96 seconds; dark has
+1903 frames and a jump from 27.423333 to 17.111667 seconds. Journals remain useful
+for parameter extraction, but synchronous logging can perturb timings.
+
+Repeat the scoped checks without certifying landscape:
+
+```sh
+python3 -B scripts/validate_system_ui.py artifacts/system-ui-third/ipados18-system-ui-light/light --portrait-only
+python3 -B scripts/validate_system_ui.py artifacts/system-ui-third/ipados18-system-ui-dark/dark --portrait-only
+```
+
+Omitting `--portrait-only` still requires genuine landscape dimensions. A unit
+test confirms that portrait-sized images with landscape filenames are rejected.
+
+### Initial partial capture
 
 [Run 43654618397](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43654618397)
 compiled and completed the UI test in both appearances, but failed evidence
@@ -299,9 +348,9 @@ The run remained unsuccessful: landscape stayed portrait, and dark mode timed
 out launching Safari. Evidence is in `artifacts/system-ui-second/`. A frame-PTS
 scan found no backward jumps among 1482 light-video frames, but one among 997
 dark-video frames (37.621667 to 37.536667 seconds). This does not certify frame
-cadence or settling time. The next attempt sends the native Simulator device
-orientation event through `PurpleWorkspacePort` and launches Safari before the
-UI test rather than during it. The orientation-event layout follows the
+cadence or settling time. The next attempt sent the native Simulator device
+orientation event through `PurpleWorkspacePort` and launched Safari before the
+UI test rather than during it. The orientation-event layout followed the
 [documented Simulator.app message format](https://github.com/shuv1337/baguette/blob/e14b606a/Sources/Baguette/Domain/Orientation/OrientationEvent.swift).
 
 ## Remaining limits
