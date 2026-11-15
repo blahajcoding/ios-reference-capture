@@ -243,6 +243,129 @@ Repeat on the probe branch with:
 gh workflow run ios-reference.yml --ref feat/springboard-animation-probe -f springboard_probe=true
 ```
 
+## System UI capture: verified portrait evidence
+
+[Run 43658667987](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43658667987)
+at `6a63e8d` passed both portrait jobs. Dark required one retry after XCTest
+timed out launching Settings; the retry passed without code changes. Both
+downloaded artifacts also pass `validate_system_ui.py --portrait-only` locally.
+Current evidence is in `artifacts/system-ui-portrait/{light,dark}/{light,dark}/`.
+Both modes report iOS 18.6 and contain seven screenshots. Light Library and dark
+recents were visually inspected. Library opening again records ten springs with
+mass 1, stiffness 323.401 and damping 28.78; recents still records no springs.
+The light video has 1168 frames and dark has 1023, with no backward PTS jumps
+detected in either file. Frame cadence and visual settling remain uncertified.
+
+### Earlier full-orientation attempt
+
+[Run 43657128087](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43657128087)
+at `8f09219` completed UI tests in light and dark mode on iPadOS 18.6. Portrait
+evidence passes the scoped validator in both modes. The overall run failed its
+landscape check: images named `landscape-*` are still portrait and must not be
+used as landscape references. Native orientation events were acknowledged but
+did not rotate SpringBoard after injection. That ineffective helper was removed;
+the system-UI workflow now explicitly captures and validates portrait only.
+
+Evidence is in `artifacts/system-ui-third/ipados18-system-ui-{light,dark}/{light,dark}/`.
+Each mode includes seven portrait PNGs, accessibility trees, SpringBoard and
+Preferences view snapshots, animation journals, action timestamps and video.
+The device is iPad Pro 11-inch (M4), 834 by 1210 pt at 2x, using iOS 18.6.
+Light Home/Library and dark Settings About/recents/Library search screenshots
+were visually inspected. Dark recents correctly shows Settings and Safari cards.
+
+Additional geometry from the portrait light view trees:
+
+| Context | Measurement in points | Interpretation |
+| --- | --- | --- |
+| Home grid | 164 horizontal and vertical pitch between sampled icons | This viewport and widget arrangement, not a universal grid |
+| Home widgets | 300 by 300 and 300 by 136; local corner radius 18.9 | Two square widgets and one wide widget |
+| Focused Library search | x 139, y 90, width 483, height 48; radius 16 | Unfocused search is 334 by 48, not UIKit's 34-point fitting height |
+| Library alphabetical list | x 139, y 162, width 556, height 968 | The keyboard can cover part of this view |
+| Recents card | width 250, height 362.7098321342926; x 539.5 | Source bounds are 834 by 1210, uniformly scaled |
+| Recents card corners | local radius 33.36, rendered radius 10 | Multiply local radius by 250/834; do not apply 33.36 to the small card |
+
+Both appearances reproduce the Library and Settings spring parameters in the
+tables below. Each Library-opening interval has 53 animation calls and ten
+springs; search focus has 70 calls and 40 springs; Settings About has 15 calls
+and four springs. Each recents-opening interval has ten basic calls and no
+intercepted springs. Its interactive card physics remain unknown.
+
+Video timing is unsuitable for direct duration measurements: the light video
+has 1552 frames and a backward PTS jump from 73.943333 to 62.96 seconds; dark has
+1903 frames and a jump from 27.423333 to 17.111667 seconds. Journals remain useful
+for parameter extraction, but synchronous logging can perturb timings.
+
+Repeat the scoped checks without certifying landscape:
+
+```sh
+python3 -B scripts/validate_system_ui.py artifacts/system-ui-third/ipados18-system-ui-light/light --portrait-only
+python3 -B scripts/validate_system_ui.py artifacts/system-ui-third/ipados18-system-ui-dark/dark --portrait-only
+```
+
+Omitting `--portrait-only` still requires genuine landscape dimensions. A unit
+test confirms that portrait-sized images with landscape filenames are rejected.
+
+### Initial partial capture
+
+[Run 43654618397](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43654618397)
+compiled and completed the UI test in both appearances, but failed evidence
+validation. All images remained portrait, including those named `landscape-*`.
+The supposed recents screenshot showed Home. Neither landscape nor recents from
+this run is a valid reference. The current validator also rejects a switcher
+hierarchy whose ancestors are hidden.
+
+Downloaded evidence is in `artifacts/system-ui-first/`. The portrait Home,
+Library and Settings captures contain actual iPadOS 18.6 view trees. Library
+and the failed recents screenshot were visually inspected. Coordinates below
+are points, not pixels; this simulator is 834 by 1210 points at 2x scale.
+
+| Portrait view | Captured geometry | Scope |
+| --- | --- | --- |
+| Home icon image | 60 by 60 | Visible `SBIconImageView` instances |
+| Initial dock material | 402 by 94; corner radius 30.5 | Four pinned apps plus Library; width changes with contents |
+| Library category background | 155 by 155; corner radius 21.6 | Sparse simulator Library, one category |
+| Library search field | x 250, y 345, width 334, height 48; radius 16 | Unfocused `SBHSearchTextField` |
+| Settings detail table | x 320, width 514 | Full-screen split layout; General already selected on launch |
+
+The action timeline associates these spring records with portrait transitions
+in the light capture. Values are CA metadata, not measured visible settling.
+
+| Action / observed properties | Mass | Stiffness | Damping | CA duration, s |
+| --- | ---: | ---: | ---: | ---: |
+| Library opening: category corner radius, icon-list transform, crossfade position/transform and label opacity | 1 | 323.401 | 28.78 | 0.5037687682537646 |
+| Library search focus: search-bar/text-field position and size | 3 | 1000 | 500 | 0.5058237870785645 |
+| Settings About navigation: view position, parallax dimming and edge-shadow opacity | 3 | 1000 | 500 | 0.5 |
+
+Library opening recorded 53 animation calls, including ten spring records.
+Search focus recorded 70 calls, including 40 spring records; this also includes
+keyboard-related layers. Settings About recorded 15 calls, including four
+springs. The General selection produced no animation because it was already
+selected. These counts are scoped to the timestamped action intervals.
+
+The system-UI workflow records screenshots, accessibility trees, view geometry,
+animation journals, action timestamps and video for each appearance. Its
+follow-up run fixes the switcher gesture and rotation setup. Synchronous probe
+logging can perturb timing, and private per-frame animators may bypass the hook.
+No qOS runtime motion or layout values were changed.
+
+### Follow-up: recents gesture confirmed
+
+[Run 43655737833](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43655737833)
+at `574308a` captured the portrait switcher correctly in light mode. The screenshot
+shows Safari and Settings cards, and the view dump has a visible
+`SBFluidSwitcherContentView`. Its timestamped opening interval contains ten basic
+animation calls and no intercepted spring records. The main interactive card
+trajectory still bypasses this layer hook; no recents spring is established.
+
+The run remained unsuccessful: landscape stayed portrait, and dark mode timed
+out launching Safari. Evidence is in `artifacts/system-ui-second/`. A frame-PTS
+scan found no backward jumps among 1482 light-video frames, but one among 997
+dark-video frames (37.621667 to 37.536667 seconds). This does not certify frame
+cadence or settling time. The next attempt sent the native Simulator device
+orientation event through `PurpleWorkspacePort` and launched Safari before the
+UI test rather than during it. The orientation-event layout followed the
+[documented Simulator.app message format](https://github.com/shuv1337/baguette/blob/e14b606a/Sources/Baguette/Domain/Orientation/OrientationEvent.swift).
+
 ## Remaining limits
 
 Screenshots render the app window, not the system status bar. Simulator values

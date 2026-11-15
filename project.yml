@@ -15,9 +15,46 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.ref.RefApp
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_VERSION: "5.0"
         CODE_SIGNING_ALLOWED: "NO"
+  SystemCapture:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: SystemCapture
+    dependencies:
+      - target: RefApp
+    info:
+      path: Generated/SystemCapture-Info.plist
+      properties:
+        CaptureOutput: $(CAPTURE_OUTPUT)
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ref.SystemCapture
+        TEST_TARGET_NAME: RefApp
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.0"
+        CODE_SIGNING_ALLOWED: "NO"
+schemes:
+  SystemCapture:
+    build:
+      targets:
+        RefApp: all
+        SystemCapture: [test]
+    test:
+      targets:
+        - SystemCapture

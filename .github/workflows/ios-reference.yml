@@ -6,10 +6,14 @@ on:
         description: Run experimental SpringBoard probe instead of UIKit capture
         type: boolean
         default: false
+      system_ui:
+        description: Capture iPadOS system UI instead of the UIKit demo
+        type: boolean
+        default: false
 
 jobs:
   capture:
-    if: ${{ !inputs.springboard_probe }}
+    if: ${{ !inputs.springboard_probe && !inputs.system_ui }}
     runs-on: macos-15
     timeout-minutes: 60
     strategy:
@@ -56,7 +60,7 @@ jobs:
           path: artifacts
 
   springboard-probe:
-    if: ${{ inputs.springboard_probe }}
+    if: ${{ inputs.springboard_probe && !inputs.system_ui }}
     runs-on: macos-15
     timeout-minutes: 30
     steps:
@@ -70,3 +74,27 @@ jobs:
         with:
           name: springboard-probe
           path: artifacts/springboard
+
+  system-ui:
+    if: ${{ inputs.system_ui }}
+    runs-on: macos-15
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [light, dark]
+    env:
+      MODE: ${{ matrix.mode }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Ensure iOS 18 runtime
+        run: bash scripts/ensure_ios18.sh
+      - name: Capture system UI
+        run: bash scripts/capture_system_ui.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ipados18-system-ui-${{ matrix.mode }}
+          path: artifacts/system-ui
