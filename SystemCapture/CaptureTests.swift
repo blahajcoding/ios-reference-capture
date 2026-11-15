@@ -43,19 +43,15 @@ final class CaptureTests: XCTestCase {
 	}
 
 	func testSystemScreens() throws {
-		home()
-		let topRight = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.005))
-		let center = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.7, dy: 0.5))
-		topRight.press(forDuration: 0.1, thenDragTo: center)
-		try capture("rotation-control-center", app: springboard)
-		let rotationLock = springboard.buttons.matching(NSPredicate(format:
-			"label CONTAINS[c] 'Rotation Lock' OR label CONTAINS[c] 'Orientation Lock'")).firstMatch
-		if rotationLock.exists, let value = rotationLock.value as? String, ["1", "On"].contains(value) {
-			rotationLock.tap()
-		}
 		for (name, orientation) in [("portrait", UIDeviceOrientation.portrait), ("landscape", .landscapeLeft)] {
 			home()
 			XCUIDevice.shared.orientation = orientation
+			let request = orientation == .portrait ? "1" : "3"
+			try request.write(to: root.appendingPathComponent("orientation-request"), atomically: true, encoding: .utf8)
+			let deadline = Date().addingTimeInterval(15)
+			while (try? String(contentsOf: root.appendingPathComponent("orientation-ack"), encoding: .utf8)) != request,
+				Date() < deadline { usleep(100_000) }
+			XCTAssertEqual(try String(contentsOf: root.appendingPathComponent("orientation-ack"), encoding: .utf8), request)
 			sleep(3)
 			try capture("\(name)-home", app: springboard)
 
@@ -76,10 +72,6 @@ final class CaptureTests: XCTestCase {
 			try capture("\(name)-settings-about", app: settings)
 
 			try mark("\(name)-home-return")
-			home()
-			let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
-			safari.launch()
-			sleep(3)
 			home()
 			try mark("\(name)-recents-open")
 			let bottom = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.995))
