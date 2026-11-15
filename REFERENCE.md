@@ -245,6 +245,19 @@ gh workflow run ios-reference.yml --ref feat/springboard-animation-probe -f spri
 
 ## System UI capture: verified portrait evidence
 
+[Run 43658667987](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43658667987)
+at `6a63e8d` passed both portrait jobs. Dark required one retry after XCTest
+timed out launching Settings; the retry passed without code changes. Both
+downloaded artifacts also pass `validate_system_ui.py --portrait-only` locally.
+Current evidence is in `artifacts/system-ui-portrait/{light,dark}/{light,dark}/`.
+Both modes report iOS 18.6 and contain seven screenshots. Light Library and dark
+recents were visually inspected. Library opening again records ten springs with
+mass 1, stiffness 323.401 and damping 28.78; recents still records no springs.
+The light video has 1168 frames and dark has 1023, with no backward PTS jumps
+detected in either file. Frame cadence and visual settling remain uncertified.
+
+### Earlier full-orientation attempt
+
 [Run 43657128087](https://github.com/blahajcoding/ios-reference-capture/actions/runs/43657128087)
 at `8f09219` completed UI tests in light and dark mode on iPadOS 18.6. Portrait
 evidence passes the scoped validator in both modes. The overall run failed its
